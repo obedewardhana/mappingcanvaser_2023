@@ -1,0 +1,14 @@
+{
+    "name": "cybe-dev/des-holt",
+    "description": "This is a event system built with Codeigniter 3",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Obeth Wardhana",
+            "email": "obedewardhana@gmail.com"
+        }
+    ],
+    "require": {
+        "dompdf/dompdf": "^2.0"
+    }
+}
