@@ -19,7 +19,8 @@ class Auth extends CI_Controller
 
     public function login()
     {
-        if ($this->session->auth['logged_in']) {
+        $loggedin = $this->session->auth;
+        if ($loggedin) {
             redirect(base_url("dashboard"));
         }
 
@@ -48,7 +49,7 @@ class Auth extends CI_Controller
 
                 $setSession = [
                     "logged_in" => TRUE,
-                    "id" => $fetch->id
+                    "id" => $fetch->id,
                 ];
 
                 $this->session->set_userdata("auth", $setSession);

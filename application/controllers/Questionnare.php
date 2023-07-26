@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Users extends CI_Controller
+class Questionnare extends CI_Controller
 {
     private $dataAdmin;
 
@@ -16,6 +16,7 @@ class Users extends CI_Controller
         $this->load->model("user_model");
         $this->load->model("role_model");
         $this->load->model("hakakses_model");
+        $this->load->model("questionnare_model");
 
         $this->dataAdmin = $this->user_model->get(["id" => $this->session->auth['id']])->row();
         $this->dataHakakses = $this->hakakses_model->find_hakakses($this->dataAdmin->role,1);
@@ -33,33 +34,31 @@ class Users extends CI_Controller
     {
 
         $push = [
-            "pageTitle" => "Users",
+            "pageTitle" => "Questionnare",
             "dataAdmin" => $this->dataAdmin,
             "dataRole"  => $this->dataRole,
             "modulcek" => $this->dataModulcek
         ];
 
         $this->load->view('administrator/header', $push);
-        $this->load->view('administrator/users', $push);
+        $this->load->view('administrator/questionnare', $push);
         $this->load->view('administrator/footer', $push);
     }
 
     public function json()
     {
         $this->load->model("datatables");
-        $this->datatables->setTable("users");
+        $this->datatables->setTable("pertanyaan");
         $this->datatables->setColumn([
             '<index>',
             '<button type="button" class="btn-previewimg" data-id="<get-id>" data-photo="<get-photo>"><div class="table-img"><img src="././img/[default_pic=<get-photo>]"></div></button>',
-            '<get-name>',
-            '<get-username>',
-            '<get-email>',
-            '[get_role=<get-role>]',
-            '<div class="text-center"><button type="button" class="btn btn-primary btn-sm btn-edit" data-id="<get-id>" data-name="<get-name>" data-email="<get-email>" data-photo="<get-photo>" data-username="<get-username>" data-role="<get-role>" data-password="<get-password>"><i class="fa fa-edit"></i></button>
-                [only_masteruser=<get-id>]</div>'
+            '<get-title>',
+            '[get_answers=<get-id>]',
+            '<div class="text-center"><button type="button" class="btn btn-primary btn-sm btn-edit" data-id="<get-id>" data-photo="<get-photo>" data-title="<get-title>" ><i class="fa fa-edit"></i></button>
+            <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="<get-id>" data-title="<get-title>" ><i class="fa fa-trash"></i></button></div>'
         ]);
-        $this->datatables->setOrdering(["id", "username", "name", "email", NULL]);
-        $this->datatables->setSearchField(["username", "name", "email", "role"]);
+        $this->datatables->setOrdering(["id", "title", NULL]);
+        $this->datatables->setSearchField(["title"]);
         $this->datatables->generate();
 
     }
@@ -76,13 +75,9 @@ class Users extends CI_Controller
 
     private function process($action = "add", $id = 0)
     {
-        $username = $this->input->post("username");
-        $name = $this->input->post("name");
-        $email = $this->input->post("email");
-        $role = $this->input->post("role");
-        $password = $this->input->post("password");
+        $title = $this->input->post("title");
 
-        if (!$username or !$name or !$email or !$role) {
+        if (!$title ) {
             $response['status'] = FALSE;
             $response['msg'] = "Periksa kembali data yang anda masukkan";
         } else {
@@ -100,23 +95,15 @@ class Users extends CI_Controller
 
                 $insertData = [
                     "id" => NULL,
-                    "username" => $username,
-                    "name" => $name,
-                    "email" => $email,
+                    "title" => $title,
                     "photo" => $gambar,
-                    "role" => $role,
-                    "password" => md5($password),
-                    "created_by" => $this->dataAdmin->id
+                    "createdby" => $this->dataAdmin->id
                 ];
             } else {
                 $insertData = [
                     "id" => NULL,
-                    "username" => $username,
-                    "name" => $name,
-                    "email" => $email,
-                    "role" => $role,
-                    "password" => md5($password),
-                    "created_by" => $this->dataAdmin->id
+                    "title" => $title,
+                    "createdby" => $this->dataAdmin->id
                 ];
             }
 
@@ -124,24 +111,59 @@ class Users extends CI_Controller
 
             if ($action == "add") {
                 $response['msg'] = "Data berhasil ditambahkan";
-                $this->user_model->post($insertData);
+                $this->questionnare_model->post($insertData);
             } else {
                 unset($insertData['id']);
-                unset($insertData['password']);
 
                 $response['msg'] = "Data berhasil diedit";
-                $this->user_model->put($id, $insertData);
+                $this->questionnare_model->put($id, $insertData);
             }
         }
 
         echo json_encode($response);
     }
 
+    function insert_answers()
+    {
+        $this->process_bulk();
+    }
+
+    private function process_bulk()
+    {
+
+        $title = $this->input->post("title");
+        $question = $this->input->post("question");
+        $idq = $this->input->post("idq");   
+
+        $this->questionnare_model->delete_answer($idq);
+
+        $temp = count($title);
+
+        $insertData = array();
+
+        for ($i = 0; $i < $temp; $i++) {
+            $insertData[] = array(
+                "id" => NULL,                
+                "title" => $title[$i],
+                "question" => $question[$i],
+                "createdby" => $this->dataAdmin->id,
+            );
+        }
+
+        $this->questionnare_model->answer_batch($insertData);
+
+        $response['status'] = TRUE;
+        $response['msg'] = "Data berhasil ditambahkan";
+
+        echo json_encode($response);
+
+    }
+
     function delete($id)
     {
         $response = '';
-        $this->user_model->delete($id);
-        if (!$this->user_model->find($id)) {
+        $this->questionnare_model->delete($id);
+        if (!$this->questionnare_model->find($id)) {
             $response = [
                 'status' => TRUE,
                 'msg' => "Data berhasil dihapus"

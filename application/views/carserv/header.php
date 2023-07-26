@@ -37,7 +37,7 @@
                 <div class="primary-menu d-lg-block">
                     <ul class="nav-menu">
                         <li><a href="<?php echo base_url('main'); ?>">Home</a></li>
-                        <?php if ($dataAdmin->id == '') {
+                        <?php if (!$this->session->auth) {
                         ?>
 
                             <li><a href="<?php echo base_url('survey'); ?>">Survey</a></li>

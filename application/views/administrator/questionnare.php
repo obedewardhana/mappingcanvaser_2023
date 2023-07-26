@@ -2,7 +2,7 @@
     <div class="col-sm-4">
         <div class="page-header float-left">
             <div class="page-title">
-                <h1>Users</h1>
+                <h1>Questionnare</h1>
             </div>
         </div>
     </div>
@@ -11,7 +11,7 @@
             <div class="page-title">
                 <ol class="breadcrumb text-right">
                     <li><a href="<?= base_url("dashboard"); ?>">Dashboard</a></li>
-                    <li class="active">Users</li>
+                    <li class="active">Questionnare</li>
                 </ol>
             </div>
         </div>
@@ -22,7 +22,7 @@
     <div class="card">
         <div class="card-header">
             <button class="btn btn-success btn-sm btn-show-add" data-toggle="modal" data-target="#compose"><i
-                    class="fa fa-plus"></i> Tambah User</button>
+                    class="fa fa-plus"></i> Tambah Pertanyaan</button>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -31,10 +31,8 @@
                         <tr>
                             <th style="width:10%">#</th>
                             <th>Foto</th>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <th>Pertanyaan</th>
+                            <th>Jawaban</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -67,7 +65,7 @@
     <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="largeModalLabel">Tambah User</h5>
+                <h5 class="modal-title" id="largeModalLabel">Tambah Kandidat</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -76,34 +74,12 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Foto</label>
-                        <input type="file" name="userfile" accept="image/gif, image/jpeg, image/jpg, image/png"
+                        <input type="file" name="userfile" accept="photo/webp, photo/jpeg, photo/jpg, photo/png"
                             class="dropify" data-default-file="" value="" />
                     </div>
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" name="username" autocomplete="chrome-off" class="form-control no-space"
-                            id="username">
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" name="name" autocomplete="new-name" class="form-control" id="name">
-                    </div>
-                    <div class="form-group">
-                        <label>Email User</label>
-                        <input type="email" name="email" autocomplete="new-email" class="form-control" id="email">
-                    </div>
-                    <div class="form-group">
-                        <label>Role </label>
-                        <select name="role" autocomplete="new-role" class="form-control" id="role">
-                            <option value="" disabled>-Pilih-</option>
-                            <?php foreach ($dataRole as $r) { ?>
-                                <option value="<?= $r->id; ?>"><?= $r->title; ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" autocomplete="password-role" name="password" class="form-control" id="password">
+                        <label>Pertanyaan</label>
+                        <input type="text" name="title" autocomplete="new-title" class="form-control" id="title">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -136,22 +112,12 @@
 
 <script>
     $(".btn-show-add").on("click", function () {
-        jQuery("input[name=username]").val("");
-        jQuery("input[name=name]").val("");
-        jQuery("input[name=email]").val("");
-        jQuery("select[name=role]").val("");
-        jQuery("input[name=password]").val("");
+        jQuery("input[name=title]").val("");
         jQuery('.dropify-wrapper').find('.img-fit').remove();
         jQuery(".dropify").attr('data-default-file', '');
-        jQuery("#compose .modal-title").html("Tambah User");
-        jQuery("#composeForm").attr("action", "<?= base_url("users/insert"); ?>");
+        jQuery("#compose .modal-title").html("Tambah Kandidat");
+        jQuery("#composeForm").attr("action", "<?= base_url("questionnare/insert"); ?>");
 
-        var htmlpassword = '<div class="form-group"> ' +
-            '<label>Password</label>' +
-            '<input type="password" autocomplete="off" name="password" class="form-control" id="password">' +
-            '</div>';
-        jQuery("input[name=password]").closest('.form-group').find('label').remove();
-        jQuery('.form-group').last().html(htmlpassword);
         jQuery(".dropify-clear").trigger("click");
         jQuery("#composeForm").validate().resetForm();
     });
@@ -162,7 +128,12 @@
         "autoWidth": true,
         "order": [],
         "ajax": {
-            "url": "<?= base_url("Users/json"); ?>"
+            "url": "<?= base_url("questionnare/json"); ?>"
+        },
+        "drawCallback": function () {
+            $('.js-select2-multiple-tags').select2({
+                tags: true
+            });
         }
     });
 
@@ -197,6 +168,101 @@
         }
     });
 
+    $(document).on('select2:select', '.js-select2-multiple-tags', function (e) {
+
+        var currentchoice = $(this).val();
+        var question = $(this).attr('id');
+        var questionid = question.replace('question-', '');
+        var modlen = currentchoice.length;
+
+        // console.log(currentchoice);
+
+        var form = new FormData();
+
+        form.append("idq", questionid);
+
+        for (i = 0; i < modlen; i++) {
+            form.append("title[]", currentchoice[i]);
+            form.append("question[]", questionid);
+        }
+        var action = "<?= base_url(); ?>questionnare/insert_answers";
+
+        jQuery.ajax({
+            url: action,
+            method: "POST",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.status) {
+                    Swal.fire(
+                        'Berhasil',
+                        data.msg,
+                        'success'
+                    ).then((result) => {
+                        jQuery("#data").DataTable().ajax.reload(null, true);
+                        // window.location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Gagal',
+                        data.msg,
+                        'error'
+                    )
+                }
+            }
+        });
+    });
+
+    $(document).on('select2:unselect', '.js-select2-multiple-tags', function (e) {
+
+        var currentchoice = $(this).val();
+        var question = $(this).attr('id');
+        var questionid = question.replace('question-', '');
+        var modlen = currentchoice.length;
+
+        console.log(currentchoice);
+
+        var form = new FormData();
+
+        form.append("idq", questionid);
+        form.append("len", modlen);
+
+        for (i = 0; i < modlen; i++) {
+            form.append("title[]", currentchoice[i]);
+            form.append("question[]", questionid);
+        }
+        var action = "<?= base_url(); ?>questionnare/insert_answers";
+
+        jQuery.ajax({
+            url: action,
+            method: "POST",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.status) {
+                    Swal.fire(
+                        'Berhasil',
+                        data.msg,
+                        'success'
+                    ).then((result) => {
+                        jQuery("#data").DataTable().ajax.reload(null, true);
+                        // window.location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Gagal',
+                        data.msg,
+                        'error'
+                    )
+                }
+            }
+        });
+    });
+
     $.validator.addMethod('filesize', function (value, element, param) {
         return this.optional(element) || (element.files[0].size <= param * 1000000)
     }, 'File size must be less than {0} MB');
@@ -206,54 +272,22 @@
             userfile: {
                 filesize: 1
             },
-            username: {
+            title: {
                 required: true
-            },
-            name: {
-                required: true
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            role: {
-                required: true
-            },
-            password: {
-                required: true,
-                minlength: 6
             }
         },
         messages: {
             userfile: {
                 filesize: "Maksimal size gambar 1MB"
             },
-            username: {
-                required: "*Masukkan username."
-            },
-            name: {
-                required: "*Masukkan nama lengkap."
-            },
-            email: {
-                required: "*Masukkan email.",
-                email: "*Email harus valid."
-            },
-            role: {
-                required: "*Masukkan role."
-            },
-            password: {
-                required: "*Masukkan password.",
-                minlength: "*Minimal password 6 karakter."
+            title: {
+                required: "*Buat pertanyaan."
             }
         },
         submitHandler: function (form) {
             var form = new FormData();
-            form.append("username", jQuery('input[name=username]').val());
-            form.append("name", jQuery('input[name=name]').val());
-            form.append("email", jQuery('input[name=email]').val());
+            form.append("title", jQuery('input[name=title]').val());
             form.append("userfile", jQuery('.dropify')[0].files[0]);
-            form.append("role", jQuery('select[name=role]').val());
-            form.append("password", jQuery('input[name=password]').val());
             var action = jQuery("#composeForm").attr("action");
             jQuery('.dropify-wrapper').find('.img-fit').remove();
 
@@ -268,13 +302,9 @@
                 contentType: false,
                 success: function (data) {
                     if (data.status) {
-                        jQuery("input[name=username]").val("");
-                        jQuery("input[name=name]").val("");
-                        jQuery("input[name=email]").val("");
-                        jQuery("input[name=password]").val("");
+                        jQuery("input[name=title]").val("");
                         jQuery("input[name=userfile]").val("");
                         jQuery(".dropify-clear").trigger("click");
-                        jQuery("select[name=role]").val("");
 
                         jQuery("#compose").modal('toggle');
                         jQuery("#data").DataTable().ajax.reload(null, true);
@@ -301,15 +331,15 @@
 
     $('body').on("click", ".btn-delete", function () {
         var id = jQuery(this).attr("data-id");
-        var name = jQuery(this).attr("data-name");
-        jQuery("#delete .modal-body").html("Anda yakin ingin menghapus <b>" + name + "</b>");
+        var title = jQuery(this).attr("data-title");
+        jQuery("#delete .modal-body").html("Anda yakin ingin menghapus <b>" + title + "</b>");
         jQuery("#delete").modal("toggle");
 
         jQuery("#delete .btn-del-confirm").attr("onclick", "deleteData(" + id + ")");
     })
 
     function deleteData(id) {
-        jQuery.getJSON("<?= base_url(); ?>users/delete/" + id, function (data) {
+        jQuery.getJSON("<?= base_url(); ?>questionnare/delete/" + id, function (data) {
             console.log(data.status);
             if (data.status) {
                 jQuery("#delete").modal("toggle");
@@ -334,12 +364,8 @@
         jQuery('.dropify-wrapper').find('.img-fit').remove();
 
         var id = jQuery(this).attr("data-id");
-        var username = jQuery(this).attr("data-username");
-        var role = jQuery(this).attr("data-role");
-        var name = jQuery(this).attr("data-name");
-        var email = jQuery(this).attr("data-email");
+        var title = jQuery(this).attr("data-title");
         var photo = jQuery(this).attr("data-photo");
-        var password = jQuery(this).attr("data-password");
 
         if (photo == '') {
             var url = '<?= base_url(); ?>img/';
@@ -354,18 +380,11 @@
         }
 
         jQuery("#compose .modal-title").html("Edit User");
-        jQuery("#composeForm").attr("action", "<?= base_url(); ?>users/update/" + id);
-        jQuery("input[name=username]").val(username);
-        jQuery("input[name=name]").val(name);
-        jQuery("input[name=email]").val(email);
-        jQuery("select[name=role]").val(role);
+        jQuery("#composeForm").attr("action", "<?= base_url(); ?>questionnare/update/" + id);
+        jQuery("input[name=title]").val(title);
 
         var html = '<img class="img-fit" src="' + newurl + '" />';
         jQuery('.dropify-wrapper').find('.dropify-message').before(html);
-
-        jQuery("input[name=password]").attr('type', 'hidden');
-        jQuery("input[name=password]").closest('.form-group').find('label').remove();
-        jQuery("input[name=password]").prop('required', false);
 
         jQuery(".form-group label.error").remove();
         jQuery(".form-group input").removeClass('.error');

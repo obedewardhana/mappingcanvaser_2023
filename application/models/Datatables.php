@@ -139,9 +139,9 @@ class Datatables extends CI_Model
         }
 
         if ($this->where) {
-            $data = $this->db->get_where($this->table, $this->where);
-        } else {
-            $data = $this->db->get($this->table);
+            $data = $this->db->order_by('id','desc')->get_where($this->table, $this->where);
+        } else {            
+            $data = $this->db->order_by('id','desc')->get($this->table);
         }
 
 

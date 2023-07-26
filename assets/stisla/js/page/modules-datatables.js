@@ -30,11 +30,30 @@ $("[data-checkboxes]").each(function() {
 
 $("#table-1").dataTable({
   "columnDefs": [
-    { "sortable": false, "targets": [2,3] }
+    { 
+      "sortable": false, 
+      "targets": [2,3]
+    }
   ]
 });
 $("#table-2").dataTable({
   "columnDefs": [
-    { "sortable": false, "targets": [0,2,3] }
+    { 
+      "sortable": false, 
+      "targets": [0,2,3]
+    }
   ]
 });
+// $("#table-1").on( 'draw', function () {
+//   console.log( 'Redraw occurred at: '+new Date().getTime() );
+// } );
+// $("#table-2").on( 'draw', function () {
+//   console.log( 'Redraw occurred at: '+new Date().getTime() );
+// } );
+// $('#table-1').on( 'order.dt',  function () { 
+//   $('.js-select2-multiple').select2("destroy").select2();
+// });
+// $('#table-2').on( 'order.dt',  function () { 
+//   $('.js-select2-multiple').select2("destroy").select2();
+// });
+

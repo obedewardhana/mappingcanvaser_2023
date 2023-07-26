@@ -14,8 +14,11 @@ class Setting extends CI_Controller
         }
 
         $this->load->model("user_model");
+        $this->load->model("role_model");
+        $this->load->model("hakakses_model");
 
         $this->dataAdmin = $this->user_model->get(["id" => $this->session->auth['id']])->row();
+        $this->dataModulcek = $this->hakakses_model->find_moduls($this->dataAdmin->role);
     }
 
 
@@ -24,7 +27,8 @@ class Setting extends CI_Controller
 
         $push = [
             "pageTitle" => "Pengaturan",
-            "dataAdmin" => $this->dataAdmin
+            "dataAdmin" => $this->dataAdmin,
+            "modulcek" => $this->dataModulcek
         ];
 
         $this->load->view('administrator/header', $push);
@@ -37,11 +41,26 @@ class Setting extends CI_Controller
 
         $push = [
             "pageTitle" => "Ganti Password",
-            "dataAdmin" => $this->dataAdmin
+            "dataAdmin" => $this->dataAdmin,
+            "modulcek" => $this->dataModulcek
         ];
 
         $this->load->view('administrator/header', $push);
         $this->load->view('administrator/change_password', $push);
+        $this->load->view('administrator/footer', $push);
+    }
+
+    public function general()
+    {
+
+        $push = [
+            "pageTitle" => "General settings",
+            "dataAdmin" => $this->dataAdmin,
+            "modulcek" => $this->dataModulcek
+        ];
+
+        $this->load->view('administrator/header', $push);
+        $this->load->view('administrator/setting', $push);
         $this->load->view('administrator/footer', $push);
     }
 
@@ -56,11 +75,11 @@ class Setting extends CI_Controller
         $youtube = $this->input->post("youtube");
 
         if ($name and $address) {
-            $config['upload_path']          = '././img/';
-            $config['allowed_types']        = 'jpeg|jpg|png';
-            $config['max_size']             = 2048;
+            $config['upload_path'] = '././img/';
+            $config['allowed_types'] = 'jpeg|jpg|png';
+            $config['max_size'] = 2048;
             // $config['file_name']            = "logo.png";
-            $config['overwrite']            = TRUE;
+            $config['overwrite'] = TRUE;
 
             $this->load->library('upload', $config);
 
@@ -101,7 +120,8 @@ class Setting extends CI_Controller
 
         $push = [
             "pageTitle" => "Profile",
-            "dataAdmin" => $this->dataAdmin
+            "dataAdmin" => $this->dataAdmin,
+            "modulcek" => $this->dataModulcek
         ];
 
         $this->load->view('administrator/header', $push);
@@ -111,35 +131,28 @@ class Setting extends CI_Controller
 
     function save_password()
     {
-        $oldpw = $this->input->post("oldpw");
         $newpw1 = $this->input->post("newpw1");
         $newpw2 = $this->input->post("newpw2");
 
-        if (!md5($oldpw)) {
+
+        if (!$newpw1 and !$newpw2) {
             $response = [
                 "status" => FALSE,
-                "msg" => "Password lama yang anda masukkan salah"
+                "msg" => "Masukkan password baru"
             ];
         } else {
-            if (!$newpw1 and !$newpw2) {
+            if ($newpw1 != $newpw2) {
                 $response = [
                     "status" => FALSE,
-                    "msg" => "Masukkan password baru"
+                    "msg" => "Ulangi password baru dengan benar"
                 ];
             } else {
-                if ($newpw1 != $newpw2) {
-                    $response = [
-                        "status" => FALSE,
-                        "msg" => "Ulangi password baru dengan benar"
-                    ];
-                } else {
-                    $response = [
-                        "status" => TRUE,
-                        "msg" => "Password telah diganti"
-                    ];
+                $response = [
+                    "status" => TRUE,
+                    "msg" => "Password telah diganti"
+                ];
 
-                    $this->user_model->set_user($this->dataAdmin->id, ["password" => md5($newpw1)]);
-                }
+                $this->user_model->set_user($this->dataAdmin->id, ["password" => md5($newpw1)]);
             }
         }
 
@@ -157,10 +170,10 @@ class Setting extends CI_Controller
             $response['msg'] = "Periksa kembali data yang anda masukkan";
         } else {
 
-            $config['upload_path']          = '././img/';
-            $config['allowed_types']        = 'jpeg|jpg|png|JPEG|JPG|PNG';
-            $config['max_size']             = 2048;
-            $config['overwrite']            = TRUE;
+            $config['upload_path'] = '././img/';
+            $config['allowed_types'] = 'jpeg|jpg|png|JPEG|JPG|PNG';
+            $config['max_size'] = 2048;
+            $config['overwrite'] = TRUE;
 
             $this->load->library('upload', $config);
 

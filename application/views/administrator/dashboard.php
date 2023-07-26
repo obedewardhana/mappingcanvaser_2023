@@ -32,6 +32,32 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-6 col-lg-3 pl-4 pr-0">
+            <div class="card text-white bg-theme-violet">
+                <div class="card-body">
+                    <h4 class="mb-0">
+                        <span class="count"><?= $role;?></span>
+                    </h4>
+                    <p class="text-light">Role</p>
+                    <div class="card-icon">
+                        <i class="fa fa-suitcase"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 pl-4 pr-0">
+            <div class="card text-white bg-theme-violet">
+                <div class="card-body">
+                    <h4 class="mb-0">
+                        <span class="count"><?= $questionnare;?></span>
+                    </h4>
+                    <p class="text-light">Pertanyaan</p>
+                    <div class="card-icon">
+                        <i class="fa fa-sticky-note"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

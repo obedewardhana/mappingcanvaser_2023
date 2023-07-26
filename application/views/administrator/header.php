@@ -29,6 +29,7 @@ if (!isset($authPage)) {
 
     <link rel="stylesheet" href="<?= base_url(); ?>assets/sufee/assets/css/style.css">
     <link rel="stylesheet" href="<?= base_url(); ?>assets/css/custom.css">
+    <link rel="stylesheet" href="<?= base_url(); ?>assets/select2/select2.min.css">
     <link rel="stylesheet" href="<?= base_url(); ?>assets/css/responsive.css">
 
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
@@ -51,6 +52,7 @@ if (!isset($authPage)) {
     <script src="<?= base_url(); ?>assets/sufee/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="<?= base_url(); ?>assets/sufee/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="<?= base_url(); ?>assets/sufee/vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="<?= base_url(); ?>assets/select2/select2.min.js"></script>
     <script src="<?= base_url(); ?>assets/jqueryvalidate/jquery.validate.js"></script>
     <script src="<?= base_url(); ?>assets/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="<?= base_url(); ?>assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
@@ -67,6 +69,13 @@ if (!isset($authPage)) {
                 trackMethods: ['GET', 'POST', 'PUT', 'DELETE', 'REMOVE']
             }
         }
+
+        $(document).ready(function() {
+            $('.js-select2-multiple').select2();
+            $('.js-select2-multiple-tags').select2({
+                tags: true
+            });
+        });
     </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/mml-chtml.js">
@@ -96,9 +105,41 @@ if (!isset($authPage)) {
                             <a href="<?= base_url("dashboard"); ?>"> <i class="menu-icon fa fa-dashboard"></i>Dashboard </a>
                         </li>
                         <h3 class="menu-title">Master Data</h3>
+                        <?php foreach ($modulcek as $m) : if($m->moduls == 6):?>
+                        <li <?php echo ($pageTitle == 'Questionnare') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("questionnare"); ?>"> <i class="menu-icon fa fa-sticky-note"></i>Questionnare </a>
+                        </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 5):?>
+                        <li <?php echo ($pageTitle == 'Analytics') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("analytics"); ?>"> <i class="menu-icon fa fa-chart-bar"></i>Analytics </a>
+                        </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 3):?>
+                        <li <?php echo ($pageTitle == 'Responden') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("responden"); ?>"> <i class="menu-icon fa fa-user-edit"></i>Responden </a>
+                        </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 7):?>
+                        <li <?php echo ($pageTitle == 'Candidates') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("candidates"); ?>"> <i class="menu-icon fa fa-font-awesome-flag"></i>Candidates </a>
+                        </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 2):?>
+                        <li <?php echo ($pageTitle == 'Role') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("role"); ?>"> <i class="menu-icon fa fa-suitcase"></i>Role </a>
+                        </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 1):?>
                         <li <?php echo ($pageTitle == 'Users') ? "class='active'" : ""; ?>>
                             <a href="<?= base_url("users"); ?>"> <i class="menu-icon fa fa-user"></i>User </a>
                         </li>
+                        <?php endif;?>
+                        <?php if($m->moduls == 8):?>
+                        <li <?php echo ($pageTitle == 'General settings') ? "class='active'" : ""; ?>>
+                            <a href="<?= base_url("setting/general"); ?>"> <i class="menu-icon fa fa-gear"></i>General Setting </a>
+                        </li>
+                        <?php endif; endforeach;?>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </nav>
@@ -120,7 +161,7 @@ if (!isset($authPage)) {
                         <div class="header-left">
                             <div style="height:41px; display:flex; align-items:center;">
                                 <h5></h5>
-                                <p><?php echo $dataAdmin->role; ?></p>
+                                <p><?php echo get_role($dataAdmin->role); ?></p>
                             </div>
                         </div>
                     </div>

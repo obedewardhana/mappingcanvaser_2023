@@ -14,9 +14,13 @@ class Dashboard extends CI_Controller
         }
 
         $this->load->model("user_model");
-        $this->load->model("data_model");
+        $this->load->model("role_model");
+        $this->load->model("hakakses_model");
+        $this->load->model("questionnare_model");
 
         $this->dataAdmin = $this->user_model->get(["id" => $this->session->auth['id']])->row();
+        $this->dataModulcek = $this->hakakses_model->find_moduls($this->dataAdmin->role);
+
     }
 
 
@@ -27,6 +31,9 @@ class Dashboard extends CI_Controller
             "pageTitle" => "Dashboard",
             "dataAdmin" => $this->dataAdmin,
             "user" => $this->user_model->get_total(),
+            "role" => $this->role_model->get_total(),
+            "questionnare" => $this->questionnare_model->get_total(),
+            "modulcek" => $this->dataModulcek
 
         ];
 
